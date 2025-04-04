@@ -144,23 +144,20 @@ public class BlueControl extends AppCompatActivity {
         }
 
         @Override
-        protected Void doInBackground(Void... devices) //while the progress dialog is shown, the connection is done in background
-        {
+        protected Void doInBackground(Void... devices) {
             try {
                 if (btSocket == null || !isBtConnected) {
-                    myBluetooth = BluetoothAdapter.getDefaultAdapter();//get the mobile bluetooth device
-                    //connects to the device's address and checks if it's available
-                    BluetoothDevice dispositivo = myBluetooth.getRemoteDevice(address);//connects to the device's address and checks if it's available
-                    if (ActivityCompat.checkSelfPermission(BlueControl.this,
-                            Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                        // create a RFCOMM (SPP) connection
-                        btSocket = dispositivo.createInsecureRfcommSocketToServiceRecord(myUUID);//create a RFCOMM (SPP) connection
-                        BluetoothAdapter.getDefaultAdapter().cancelDiscovery();//cancel discovery
-                        btSocket.connect();//start connection
+                    myBluetooth = BluetoothAdapter.getDefaultAdapter(); // Get Bluetooth adapter
+                    BluetoothDevice dispositivo = myBluetooth.getRemoteDevice(address);
+                    // Kiểm tra quyền Bluetooth Connect
+                    if (ActivityCompat.checkSelfPermission(BlueControl.this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
+                        btSocket = dispositivo.createInsecureRfcommSocketToServiceRecord(myUUID);
+                        BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+                        btSocket.connect();
                     }
                 }
             } catch (IOException e) {
-                ConnectSuccess = false;//if the try failed, you can check the exception here
+                ConnectSuccess = false;
             }
             return null;
         }

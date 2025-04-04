@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
@@ -78,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
     private void checkBluetoothPermission() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
@@ -86,27 +88,63 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+//    private void pairedDevicesList() {
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+//            pairedDevices = myBluetooth.getBondedDevices();
+//            ArrayList list = new ArrayList();
+//            if (pairedDevices.size() > 0) {
+//                for (BluetoothDevice bt : pairedDevices) {
+//                    if (ActivityCompat.checkSelfPermission(this,
+//                            Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+//                        Toast.makeText(getApplicationContext(), "Danh sách thiết bị Bluetooth đã bật", Toast.LENGTH_LONG).show();
+//                        list.add(bt.getName() + "\n" + bt.getAddress()); // Get the device's name and the address
+//                    }
+//                }
+//            } else {
+//                Toast.makeText(getApplicationContext(), "Không tìm thấy thiết bị kết nối.", Toast.LENGTH_LONG).show();
+//            }
+//            final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, list);
+//            listDanhSach.setAdapter(adapter);
+//            listDanhSach.setOnItemClickListener(myListClickListener); // Method called when the device from the list is clicked
+//            return;
+//        }
+//    }
     private void pairedDevicesList() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            pairedDevices = myBluetooth.getBondedDevices();
-            ArrayList list = new ArrayList();
-            if (pairedDevices.size() > 0) {
-                for (BluetoothDevice bt : pairedDevices) {
-                    if (ActivityCompat.checkSelfPermission(this,
-                            Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(getApplicationContext(), "Danh sách thiết bị Bluetooth đã bật", Toast.LENGTH_LONG).show();
-                        list.add(bt.getName() + "\n" + bt.getAddress()); // Get the device's name and the address
-                    }
-                }
-            } else {
-                Toast.makeText(getApplicationContext(), "Không tìm thấy thiết bị kết nối.", Toast.LENGTH_LONG).show();
-            }
-            final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, list);
-            listDanhSach.setAdapter(adapter);
-            listDanhSach.setOnItemClickListener(myListClickListener); // Method called when the device from the list is clicked
+            Toast.makeText(this, "Ứng dụng chưa được cấp quyền Bluetooth", Toast.LENGTH_LONG).show();
+            checkBluetoothPermission();
             return;
         }
+
+        pairedDevices = myBluetooth.getBondedDevices();
+        ArrayList<String> list = new ArrayList<>();
+
+        if (pairedDevices.size() > 0) {
+            for (BluetoothDevice bt : pairedDevices) {
+                list.add(bt.getName() + "\n" + bt.getAddress());
+            }
+        } else {
+            Toast.makeText(getApplicationContext(), "Không tìm thấy thiết bị kết nối.", Toast.LENGTH_LONG).show();
+        }
+
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
+        listDanhSach.setAdapter(adapter);
+        listDanhSach.setOnItemClickListener(myListClickListener);
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_BLUETOOTH_CONNECT) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Đã cấp quyền Bluetooth", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Bạn cần cấp quyền Bluetooth để sử dụng chức năng này", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+
 
 
     //tạo adapter
